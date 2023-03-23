@@ -23,15 +23,15 @@ class Monitor():
         #turno 0 para los coches de dirección norte
         # turno 1 para los coches de direccion sur
         #turno 2 para los peatones
-        self.carsNorth = Value('i',0)
-        self.carsSouth = Value('i',0)
-        self.pedestrian= Value('i',0)
-        self.carsNorth_waiting = Value('i',0)
-        self.carsSouth_waiting = Value('i',0)
-        self.Pedestrian_waiting = Value('i',0)
-        self.no_NorthP = Condition(self.mutex)
-        self.no_SouthP = Condition(self.mutex)
-        self.no_Cars = Condition(self.mutex)
+        self.carsNorth = Value('i',0) #Coches en direccion norte dentro del puente
+        self.carsSouth = Value('i',0) #coches en dirección sur dentro del puente
+        self.pedestrian= Value('i',0) # peatones dentro del puente 
+        self.carsNorth_waiting = Value('i',0) # coches en direccion norte esperando
+        self.carsSouth_waiting = Value('i',0) # coches en dirección sur esperando
+        self.Pedestrian_waiting = Value('i',0) #peatones esperando 
+        self.no_NorthP = Condition(self.mutex) #No hay coches en dirección norte ni peatones
+        self.no_SouthP = Condition(self.mutex) # No hay coches en dirección sur ni peatones
+        self.no_Cars = Condition(self.mutex) # No hay coches
         
     def are_no_SouthPed(self):
         return (self.carsSouth.value == 0 and self.pedestrian.value ==0) and \
@@ -64,6 +64,8 @@ class Monitor():
         self.turno.value = 2
       elif self.turno.value == 2 and self.Pedestrian_waiting.value==0 and (self.carsNorth_waiting.value>0 and self.carsSouth_waiting.value>0):
         self.turno.value= 0
+    # Controlamos el turno para evitar que estén a la espera dos grupos de procesos 
+    # distintos y en turno le pertenezca a otro que no requiere acceso
 
        
     def leaves_car(self, direction: int) -> None:
